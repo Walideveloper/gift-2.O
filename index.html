@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ZUNAIRA API Puzzle – Step 1</title>
+  <title>ZUNAIRA API Puzzle</title>
   <style>
     body {
       font-family: sans-serif;
@@ -13,6 +13,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      flex-direction: column;
     }
     .grid {
       display: grid;
@@ -30,10 +31,12 @@
       font-size: 24px;
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
     }
     .blank {
       background-color: transparent;
       border: none;
+      cursor: default;
     }
     .empty {
       background-color: #ccc;
@@ -51,30 +54,104 @@
         font-size: 20px;
       }
     }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="grid">
     <!-- Row 1: Z U N A I -->
-    <div class="tile">Z</div>
-    <div class="tile">U</div>
-    <div class="tile">N</div>
-    <div class="tile">A</div>
-    <div class="tile">I</div>
+    <div class="tile" data-position="0">Z</div>
+    <div class="tile" data-position="1">U</div>
+    <div class="tile" data-position="2">N</div>
+    <div class="tile" data-position="3">A</div>
+    <div class="tile" data-position="4">I</div>
 
     <!-- Row 2: R A _ _ _ (blank tiles) -->
-    <div class="tile">R</div>
-    <div class="tile">A</div>
-    <div class="tile blank"></div>
-    <div class="tile blank"></div>
-    <div class="tile blank"></div>
+    <div class="tile" data-position="5">R</div>
+    <div class="tile" data-position="6">A</div>
+    <div class="tile blank" data-position="7"></div>
+    <div class="tile blank" data-position="8"></div>
+    <div class="tile blank" data-position="9"></div>
 
     <!-- Row 3: A P I _ [empty tile] -->
-    <div class="tile">A</div>
-    <div class="tile">P</div>
-    <div class="tile">I</div>
-    <div class="tile blank"></div>
-    <div class="tile empty"></div>
+    <div class="tile" data-position="10">A</div>
+    <div class="tile" data-position="11">P</div>
+    <div class="tile" data-position="12">I</div>
+    <div class="tile blank" data-position="13"></div>
+    <div class="tile empty" data-position="14"></div>
   </div>
+
+  <button id="resetButton">Reset</button>
+
+  <script>
+    const tiles = document.querySelectorAll('.tile');
+    const resetButton = document.getElementById('resetButton');
+    let emptyPosition = 14; // The index of the empty tile
+
+    // Function to check if two tiles are adjacent
+    function isAdjacent(pos1, pos2) {
+      const adjacencies = [
+        [-1, 1, 5, -5] // left, right, down, up
+      ];
+      const rowLength = 5;
+      return adjacencies[0].includes(pos2 - pos1) && Math.abs(pos1 % rowLength - pos2 % rowLength) <= 1;
+    }
+
+    // Function to move a tile
+    function moveTile(position) {
+      if (isAdjacent(position, emptyPosition)) {
+        const tile = document.querySelector(`[data-position="${position}"]`);
+        const emptyTile = document.querySelector(`[data-position="${emptyPosition}"]`);
+
+        // Swap the positions
+        tile.dataset.position = emptyPosition;
+        emptyTile.dataset.position = position;
+
+        // Swap the text (content) inside the tiles
+        const temp = tile.textContent;
+        tile.textContent = emptyTile.textContent;
+        emptyTile.textContent = temp;
+
+        // Update empty position
+        emptyPosition = position;
+      }
+    }
+
+    // Attach event listener to tiles
+    tiles.forEach(tile => {
+      tile.addEventListener('click', () => {
+        if (!tile.classList.contains('blank')) {
+          const position = parseInt(tile.dataset.position, 10);
+          moveTile(position);
+        }
+      });
+    });
+
+    // Reset the game
+    resetButton.addEventListener('click', resetGame);
+
+    function resetGame() {
+      const initialOrder = ['Z', 'U', 'N', 'A', 'I', 'R', 'A', '', '', '', 'A', 'P', 'I', '', ''];
+
+      tiles.forEach((tile, index) => {
+        if (tile.classList.contains('blank') || tile.classList.contains('empty')) {
+          tile.textContent = '';
+          tile.classList.remove('blank', 'empty');
+        } else {
+          tile.textContent = initialOrder[index];
+        }
+        tile.dataset.position = index;
+      });
+
+      emptyPosition = 14; // Reset empty position to the last tile
+    }
+
+  </script>
 </body>
 </html>
