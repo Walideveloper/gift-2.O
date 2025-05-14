@@ -53,7 +53,7 @@
 </head>
 <body>
   <div class="grid" id="grid">
-    <!-- Tiles -->
+    <!-- Tiles with ZUNAIRA API -->
     <div class="tile" data-position="0">Z</div>
     <div class="tile" data-position="1">U</div>
     <div class="tile" data-position="2">N</div>
@@ -122,23 +122,34 @@
       });
     });
 
-    // Reset the game
+    // Shuffle the tiles
+    function shuffleTiles() {
+      const positions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+      for (let i = positions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [positions[i], positions[j]] = [positions[j], positions[i]];
+      }
+      return positions;
+    }
+
+    // Reset the game and shuffle tiles
     resetButton.addEventListener('click', resetGame);
 
     function resetGame() {
       const initialOrder = ['Z', 'U', 'N', 'A', 'I', 'R', 'A', '', '', '', 'A', 'P', 'I', '', ''];
+      const shuffledOrder = shuffleTiles();
 
       tiles.forEach((tile, index) => {
         if (tile.classList.contains('blank') || tile.classList.contains('empty')) {
           tile.textContent = '';
           tile.classList.remove('blank', 'empty');
         } else {
-          tile.textContent = initialOrder[index];
+          tile.textContent = initialOrder[shuffledOrder[index]];
         }
-        tile.dataset.position = index;
+        tile.dataset.position = shuffledOrder[index];
       });
 
-      emptyPosition = 14; // Reset empty position to the last tile
+      emptyPosition = shuffledOrder.indexOf(14); // Reset empty position to the shuffled tile
     }
   </script>
 </body>
